@@ -8,4 +8,5 @@ import org.springframework.http.ResponseEntity;
 public interface CurrencyConversionService {
 
     ResponseEntity<?> calculateCurrencyConversion(String from, String to, Double quantity);
+    ResponseEntity<?> calculateCurrencyConversionFeign(String from, String to, Double quantity);
 }

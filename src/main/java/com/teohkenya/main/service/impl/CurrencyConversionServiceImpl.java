@@ -5,6 +5,7 @@ import com.teohkenya.main.model.CurrencyConversion;
 import com.teohkenya.main.model.ErrorDetails;
 import com.teohkenya.main.model.Errors;
 import com.teohkenya.main.service.CurrencyConversionService;
+import com.teohkenya.main.utils.CurrencyExchangeProxy;
 import com.teohkenya.main.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,13 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
     private final Utils utils;
     private final CustomProperties customProperties;
 
+    private final CurrencyExchangeProxy currencyExchangeProxy;
+
     @Autowired
-    public CurrencyConversionServiceImpl(Utils utils, CustomProperties customProperties) {
+    public CurrencyConversionServiceImpl(Utils utils, CustomProperties customProperties, CurrencyExchangeProxy currencyExchangeProxy) {
         this.utils = utils;
         this.customProperties = customProperties;
+        this.currencyExchangeProxy = currencyExchangeProxy;
     }
 
     @Override
@@ -95,5 +99,22 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
               return new ResponseEntity<>(errorDetails, HttpStatus.OK);
           }
         }
+    }
+
+    @Override
+    public ResponseEntity<?> calculateCurrencyConversionFeign(String from, String to, Double quantity) {
+
+        ResponseEntity<CurrencyConversion>  responseEntity = currencyExchangeProxy.currencyExchange(from, to);
+        CurrencyConversion currencyConversion = responseEntity.getBody();
+
+        if (currencyConversion != null) {
+            currencyConversion.setQuantity(quantity);
+        }
+
+        if (currencyConversion != null) {
+            currencyConversion.setTotalCalculatedAmount(currencyConversion.getConversionMultiple() * quantity);
+        }
+
+        return new ResponseEntity<>(currencyConversion, HttpStatus.OK);
     }
 }

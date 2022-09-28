@@ -29,7 +29,7 @@ public class CurrencyConversionController {
                                                @PathVariable(name = "to") String  to,
                                                @PathVariable(name = "quantity") Double quantity){
 
-        return currencyConversionService.calculateCurrencyConversion(from, to,quantity);
+        return currencyConversionService.calculateCurrencyConversionFeign(from, to,quantity);
     }
 
 }
