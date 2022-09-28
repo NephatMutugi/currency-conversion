@@ -29,7 +29,17 @@ public class CurrencyConversionController {
                                                @PathVariable(name = "to") String  to,
                                                @PathVariable(name = "quantity") Double quantity){
 
+        return currencyConversionService.calculateCurrencyConversion(from, to,quantity);
+    }
+
+     @GetMapping(value = "/from/{from}/to/{to}/quantity/{quantity}/feign")
+    public ResponseEntity<?> convertCurrenciesFeign(@PathVariable(name = "from") String  from,
+                                               @PathVariable(name = "to") String  to,
+                                               @PathVariable(name = "quantity") Double quantity){
+
         return currencyConversionService.calculateCurrencyConversionFeign(from, to,quantity);
     }
+
+
 
 }

@@ -25,7 +25,6 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
 
     private final Utils utils;
     private final CustomProperties customProperties;
-
     private final CurrencyExchangeProxy currencyExchangeProxy;
 
     @Autowired
@@ -35,6 +34,8 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
         this.currencyExchangeProxy = currencyExchangeProxy;
     }
 
+
+    // Using feign client to send http requests
     @Override
     public ResponseEntity<?> calculateCurrencyConversion(String from, String to, Double quantity) {
         if (customProperties.getMock().equalsIgnoreCase("true")) {
@@ -45,75 +46,79 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
             ErrorDetails errorDetails = new ErrorDetails();
             Errors errors = new Errors();
 
-//            currencyConversion.setTo(to);
-//            currencyConversion.setFrom(from);
-//            currencyConversion.setQuantity(quantity);
 
-          try{
-              // Make rest api call
+            try {
+                // Make rest api call
 
-              String url = "http://localhost:8000/currency-exchange/from/{from}/to/{to}";
-              HashMap<String, String> uriVariables = new HashMap<>();
+                String url = "http://localhost:8000/currency-exchange/from/{from}/to/{to}";
+                HashMap<String, String> uriVariables = new HashMap<>();
 
-              uriVariables.put("from", from);
-              uriVariables.put("to", to);
+                uriVariables.put("from", from);
+                uriVariables.put("to", to);
 
-              ResponseEntity<CurrencyConversion> responseEntity =
-                      new RestTemplate()
-                              .getForEntity("http://localhost:8000/currency-exchange/from/{from}/to/{to}",
-                                      CurrencyConversion.class,
-                                      uriVariables);
+                ResponseEntity<CurrencyConversion> responseEntity =
+                        new RestTemplate()
+                                .getForEntity(url,
+                                        CurrencyConversion.class,
+                                        uriVariables);
 
-              currencyConversion = responseEntity.getBody();
+                currencyConversion = responseEntity.getBody();
 
 
-              log.info("----------------------- RESPONSE ENTITY ---------------------");
-              log.info(utils.formatObject(responseEntity));
+                log.info("----------------------- RESPONSE ENTITY ---------------------");
+                log.info(utils.formatObject(responseEntity));
 
 
-              // If a null record was returned
-              if (currencyConversion == null){
+                // If a null record was returned
+                if (currencyConversion == null) {
 
-                  errors.setErrorCode("500");
-                  errors.setErrorMessage("Failure");
-                  errors.setErrorDetails("An Error Occurred");
-                  errorDetails.setErrors(errors);
-                  return new ResponseEntity<>(errorDetails, HttpStatus.OK);
-              }
+                    errors.setErrorCode("500");
+                    errors.setErrorMessage("Failure");
+                    errors.setErrorDetails("An Error Occurred");
+                    errorDetails.setErrors(errors);
+                    return new ResponseEntity<>(errorDetails, HttpStatus.OK);
+                }
 
-              Double conversionMultiple = currencyConversion.getConversionMultiple();
+                Double conversionMultiple = currencyConversion.getConversionMultiple();
 
-              CurrencyConversion convertCurrencies = new CurrencyConversion(currencyConversion.getId(),
-                      from, to, quantity,
-                      conversionMultiple,
-                      (quantity * conversionMultiple),
-                      currencyConversion.getEnvironment());
+                CurrencyConversion convertCurrencies = new CurrencyConversion(currencyConversion.getId(),
+                        from, to, quantity,
+                        conversionMultiple,
+                        (quantity * conversionMultiple),
+                        currencyConversion.getEnvironment());
 
-              return new ResponseEntity<>(convertCurrencies, HttpStatus.OK);
+                return new ResponseEntity<>(convertCurrencies, HttpStatus.OK);
 
-          } catch (NullPointerException ex){
-              errors.setErrorCode("500");
-              errors.setErrorMessage("Failure");
-              errors.setErrorDetails(ex.getMessage());
-              errorDetails.setErrors(errors);
-              return new ResponseEntity<>(errorDetails, HttpStatus.OK);
-          }
+            } catch (NullPointerException ex) {
+                errors.setErrorCode("500");
+                errors.setErrorMessage("Failure");
+                errors.setErrorDetails(ex.getMessage());
+                errorDetails.setErrors(errors);
+                return new ResponseEntity<>(errorDetails, HttpStatus.OK);
+            }
         }
     }
 
+
+    // Using feign client to send http requests
     @Override
     public ResponseEntity<?> calculateCurrencyConversionFeign(String from, String to, Double quantity) {
 
-        ResponseEntity<CurrencyConversion>  responseEntity = currencyExchangeProxy.currencyExchange(from, to);
+        ResponseEntity<CurrencyConversion> responseEntity = currencyExchangeProxy.currencyExchange(from, to);
+
+        log.info("----------------------- RESPONSE ENTITY ---------------------");
+        log.info(utils.formatObject(responseEntity));
+
         CurrencyConversion currencyConversion = responseEntity.getBody();
 
         if (currencyConversion != null) {
             currencyConversion.setQuantity(quantity);
+            currencyConversion.setTotalCalculatedAmount(currencyConversion.getConversionMultiple() * quantity);
+
+            String environment = currencyConversion.getEnvironment();
+            currencyConversion.setEnvironment("Port: " + environment + ", Client: Feign Client");
         }
 
-        if (currencyConversion != null) {
-            currencyConversion.setTotalCalculatedAmount(currencyConversion.getConversionMultiple() * quantity);
-        }
 
         return new ResponseEntity<>(currencyConversion, HttpStatus.OK);
     }
