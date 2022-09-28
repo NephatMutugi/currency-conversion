@@ -2,6 +2,8 @@ package com.teohkenya.main.service.impl;
 
 import com.teohkenya.main.configs.CustomProperties;
 import com.teohkenya.main.model.CurrencyConversion;
+import com.teohkenya.main.model.ErrorDetails;
+import com.teohkenya.main.model.Errors;
 import com.teohkenya.main.service.CurrencyConversionService;
 import com.teohkenya.main.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +38,9 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
         } else {
             CurrencyConversion currencyConversion = new CurrencyConversion();
 
+            ErrorDetails errorDetails = new ErrorDetails();
+            Errors errors = new Errors();
+
 //            currencyConversion.setTo(to);
 //            currencyConversion.setFrom(from);
 //            currencyConversion.setQuantity(quantity);
@@ -64,7 +69,12 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
 
               // If a null record was returned
               if (currencyConversion == null){
-                  return new ResponseEntity<>("An Error Occurred", HttpStatus.OK);
+
+                  errors.setErrorCode("500");
+                  errors.setErrorMessage("Failure");
+                  errors.setErrorDetails("An Error Occurred");
+                  errorDetails.setErrors(errors);
+                  return new ResponseEntity<>(errorDetails, HttpStatus.OK);
               }
 
               Double conversionMultiple = currencyConversion.getConversionMultiple();
@@ -78,7 +88,11 @@ public class CurrencyConversionServiceImpl implements CurrencyConversionService 
               return new ResponseEntity<>(convertCurrencies, HttpStatus.OK);
 
           } catch (NullPointerException ex){
-              return new ResponseEntity<>("Conversion not found", HttpStatus.OK);
+              errors.setErrorCode("500");
+              errors.setErrorMessage("Failure");
+              errors.setErrorDetails(ex.getMessage());
+              errorDetails.setErrors(errors);
+              return new ResponseEntity<>(errorDetails, HttpStatus.OK);
           }
         }
     }

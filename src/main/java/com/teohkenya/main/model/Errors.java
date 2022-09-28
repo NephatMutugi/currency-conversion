@@ -8,7 +8,7 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-public class ErrorList {
+public class Errors {
 
     private String errorCode;
     private String errorMessage;

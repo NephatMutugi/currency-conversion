@@ -9,5 +9,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ErrorDetails {
-    private ErrorList errors;
+    private Errors errors;
 }
