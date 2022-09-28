@@ -7,5 +7,5 @@ import org.springframework.http.ResponseEntity;
  **/
 public interface CurrencyConversionService {
 
-    ResponseEntity<?> calculateCurrencyConversion(String from, String to, String quantity);
+    ResponseEntity<?> calculateCurrencyConversion(String from, String to, Double quantity);
 }

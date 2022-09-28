@@ -1,7 +1,9 @@
 package com.teohkenya.main.controller;
 
+import com.teohkenya.main.model.CurrencyConversion;
 import com.teohkenya.main.service.CurrencyConversionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,13 +26,12 @@ public class CurrencyConversionController {
     }
 
 
-    @GetMapping("from/{from}/to/{to}/quantity/{quantity}")
+    @GetMapping(value = "from/{from}/to/{to}/quantity/{quantity}")
     public ResponseEntity<?> convertCurrencies(@PathVariable(name = "from") String  from,
                                                @PathVariable(name = "to") String  to,
-                                               @PathVariable(name = "quantity") String  quantity){
+                                               @PathVariable(name = "quantity") Double quantity){
 
         return currencyConversionService.calculateCurrencyConversion(from, to,quantity);
-
     }
 
 }
