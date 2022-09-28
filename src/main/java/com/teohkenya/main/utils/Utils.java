@@ -1,11 +1,11 @@
 package com.teohkenya.main.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teohkenya.main.model.CurrencyConversion;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
 
 /**
  * @ Author NMuchiri
@@ -23,5 +23,16 @@ public class Utils {
         currencyConversion.setTotalCalculatedAmount(quantity * 120);
 
         return new ResponseEntity<>(currencyConversion, HttpStatus.OK);
+    }
+
+    public String formatObject(Object entity) {
+
+        try {
+            return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(entity);
+
+        } catch (JsonProcessingException e) {
+
+            return e.getMessage();
+        }
     }
 }
