@@ -5,3 +5,6 @@ spring:
     activate:
       on-profile:
     import: optional:configserver:http://localhost:8888
+
+conversion:
+  mock: true
