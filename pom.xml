@@ -95,6 +95,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>currency-conversion</finalName>
     </build>
 
 </project>
