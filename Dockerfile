@@ -1,5 +1,5 @@
 FROM openjdk:18.0.1
-LABEL maintainer="nmuchirinephat5@gmail.com"
+LABEL maintainer="muchirinephat5@gmail.com"
 ENV PORT=8100
 #
 ARG JAR_FILE=target/currency-conversion.jar
